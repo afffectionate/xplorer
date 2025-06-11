@@ -38,4 +38,4 @@ def search():
     return render_template("results.html", list_of_results=results)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0")
