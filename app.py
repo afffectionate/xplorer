@@ -10,7 +10,7 @@ def get_file_content(file):
   with open(file, "r", encoding='utf-8') as content:
     return content.read()
 
-@app.route("/home")  
+@app.route("/home")
 def home():
     return render_template("search.html")
 
@@ -22,7 +22,7 @@ def search():
     results = []
 
     for file_name in file_names:
-        absolute_path_to_file = os.path.abspath(FOLDER) + "\\" + file_name
+        absolute_path_to_file = os.path.join(os.path.abspath(FOLDER), file_name)
         file_content = get_file_content(absolute_path_to_file)
         if user_query in file_content:
             text_before_query = file_content.split(user_query)[0]
