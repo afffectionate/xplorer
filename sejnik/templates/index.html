@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="cs"><meta charset="UTF-8">
+<html>
+<head>
+	<title>Moje stránka</title>
+	<style>
+		.tlacitko{
+			background: yellow;
+			border: 1px solid black;
+			cursor: pointer;
+		}
+		.infoServeru{
+			background: aliceblue;
+		}
+	</style>
+</head>
+<body>
+	<h1>Moje stránka</h1>
+	
+	<div id="obsah">
+		(... tady bude výsledek ....)
+	</div>
+
+	<div class="tlacitko" onclick="ziskejData()">
+		Získej data!
+	</div>
+
+	<script>
+		async function ziskejData(){
+			// 1. Najdeme parent element, do kterého vložíme nový element
+			var elementObsah = document.querySelector("#obsah");
+
+			// 2. Vytvoříme nový element s veškerými náležitostmi
+			var novyElement = document.createElement("p");
+			novyElement.className = "infoServeru";
+			elementObsah.appendChild(novyElement);
+			novyElement.innerText = "Načítám data, chvilku moment...";
+
+			// 3. Pošleme dotaz na server & konvertujeme jej z JSONu na JS objekt:
+			var odpoved = await fetch("/results?query=velryba");
+			var seznamSouboru = await odpoved.json();
+			
+			// 4. Nastavíme text nového elementu na (třeba) počet lidí uvnitř seznamu:
+
+			for(let i=0; i < seznamSouboru.length; i++) {
+				var d=document.createElement("div")
+            	d.innerText="Filename: "+seznamSouboru[i].file_name
+            //add the data in whatever html element you want and then append it to the container
+            	elementObsah.appendChild(d);
+			}
+
+			//nezapomeňte možnostu užívat breakpointy a přednastavené breakpointy pomocí klíčového slova:
+			//debugger;
+			//(je nutné mít otevřené Dev Tools)
+		}
+	</script>
+</body>
+</html>

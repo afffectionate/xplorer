@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<head>
+<meta charset="UTF-8"><meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="icon" type="image/x-icon" href="static/search.ico">
+<link rel="stylesheet" href="https://unpkg.com/xp.css">
+<link href="https://fonts.cdnfonts.com/css/trebuchet-ms-2" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="https://gitcdn.xyz/repo/pi0/clippyjs/master/assets/clippy.css">
+<title>Vyhledávání</title>
+
+<style>
+
+    @media screen and (min-resolution: 120dpi) { 
+    body {zoom: 0.8;}
+    .window {
+        position: absolute;
+        top: 5%;
+    }
+    }
+
+    @media screen and (max-width: 768px) {
+    body {
+        background-size: auto;
+    }
+    
+    .search-hint {
+        display: none;
+    }
+}
+
+    body {
+        background-image: url("../static/bliss-.jpg");
+        background-size: cover;
+        background-repeat: no-repeat;
+        margin:0;
+        overflow: hidden;
+    }
+    
+    .panel-start {
+    background: linear-gradient(
+      180deg,
+      #0997ff,
+      #0053ee 8%,
+      #0050ee 40%,
+      #06f 88%,
+      #06f 93%,
+      #005bff 95%,
+      #003dd7 96%,
+      #003dd7
+    );
+    
+    border-top: 1px solid #0831d9;
+    border-left: 1px solid #0831d9;
+    border-right: 1px solid #001ea0;
+    font-size: 1px;
+    text-shadow: 1px 1px #0f1089;
+    height: 40px;
+    position:absolute;
+    bottom:0px;
+    width:100%;
+    display: flex;
+    align-items: center;
+    box-sizing:border-box;
+    z-index:99;
+  }
+  
+  .startbutton {
+        position:relative;
+        bottom:0px;
+        left:0px;
+        height:40px;
+        padding:0;
+        margin-right:10px;
+    }
+    
+    #startimage {
+        filter: drop-shadow(1px 0px #0831d9);
+        height:38px;
+    }
+    
+
+    .program-icon {
+        width:20px;
+        height:20px;
+        margin:5px;
+    }
+    
+    .panel-start .item {
+        position:relative;
+        bottom:1px;
+        width:200px;
+        height:36px;
+        padding:5px;
+        margin:1px;
+        display:flex;
+        border-radius: 3px;
+        -webkit-filter: brightness(1.3);
+        filter: brightness(1.3);
+        font-family: "Trebuchet MS";
+        font-size: 12px;
+        font-weight:400;
+        color:rgba(255,255,255,0.75);
+        
+    }
+    
+    .panel-start *::selection {
+        background-color:none;
+    }
+    
+    .panel-start .item:hover {
+        -webkit-filter: brightness(1.5);
+        filter: brightness(1.5);
+    }
+    
+    .panel-start .item:active {
+        -webkit-filter: brightness(0.9), saturate(0.8);
+        filter: brightness(0.9);
+        filter: saturate(0.8);
+    }
+    
+    .panel-start .datetime {
+        position:absolute;
+        right:0px;
+        width: 150px;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        font-family: Tahoma;
+        font-size: 12px;
+        font-weight:400;
+        color:rgba(255,255,255,0.75);
+        filter: brightness(1.3) saturate(2);
+    }
+
+    
+    .window-container { 
+        height:100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing:border-box;
+    }
+    
+    .window {
+        min-width:60%;
+        height:auto;
+        max-width:auto;
+        z-index:10;
+    }
+    
+    .window-contents {
+        display: flex;
+        height:700px;
+    }
+    
+    .search-hint {
+        display:flex;
+        flex-direction:column;
+        align-items: center;
+        justify-content: center;
+        flex: 2;
+        background: #6a8be2;
+        height:inherit;
+        border: 2px solid #6a8be2;
+    }
+    
+    .search-iframe {
+        flex: 5;    
+        margin:10px;
+        box-sizing: border-box;
+        max-width: 700px;
+    }
+    
+    .window-body {
+        margin-top:0px!important;
+        margin: 3px!important;
+    }
+    
+    .header {
+        display:flex;
+        flex-direction:row;
+        border-bottom:1px solid #b4afa0;
+    }
+    
+    .header-item {
+        position:relative;
+        padding:5px;
+        cursor:normal;
+        display: flex;
+        align-items:center;
+        vertical-align: middle;
+    }
+    
+    .header-item.large {
+        height:40px;
+        border-left:1px solid #b4afa0;
+        min-width:40px;
+        text-align:center;
+        padding-left:10px;
+        padding-right:10px;
+    }
+    
+    .header-item:hover {
+        background-color: #d3cfc7;
+        cursor:normal;
+    }
+    
+    .header-item img {
+       height:30px;
+       width:auto;
+       align-items:center;
+       vertical-align: middle;
+       display:flex;
+       margin: 5px;
+    }
+    
+    .header-item.active {
+        border-radius:5px;
+        background-color:#fdfdfc;
+        border: 1px solid lightblue;
+        margin-left:5px;
+        margin-right:5px;
+        padding-left:10px;
+        padding-right:10px;
+        
+    }
+    
+    .header-item.active:hover {
+        background-color:#fafaf9;
+    }
+    
+    .bubble {
+        position: relative;
+        background: #cfd8ef;
+        width: 80%;
+        height: auto;
+        border-radius: 10px;
+        line-height: 2;
+        padding:10px;
+        margin:20px;
+        font-weight:bold;
+        color: #000000;
+        font-family: "Pixelated MS Sans Serif",Arial;
+    }
+
+    .bubble-items {
+        color: #000000;
+        font-family: "Pixelated MS Sans Serif",Arial;
+        font-weight:normal;
+        display: flex;
+        align-items:center;
+        vertical-align: middle;
+        word-spacing:2px;
+    }
+    
+    .bubble-items::before {
+        position: relative;
+        content: url("../static/arrow.ico");
+        padding: 5px;
+        display: flex;
+        vertical-align: middle;
+    }
+    
+    .desktop-icon {
+        padding:20px;
+        position:absolute;
+        top:20px;
+        left:20px;
+        height:20px;
+        width:auto;
+        text-align:center;
+        font-family:"Trebuchet MS";
+        font-size:13px;
+        color:white;
+        text-shadow: 1px 1px #0f1089;
+        display:flex;
+        flex-direction:column;
+        box-sizing:border-box;
+        align-items: center;
+        
+    }
+    
+    .desktop-icon img {
+        width:40px;
+        height:auto;
+        text-shadow: 1px 1px #0f1089;
+        
+    }
+
+    #progressbar {
+    margin-top:20px;
+    display: none;
+    justify-content: center;
+    width:100%;
+    }
+
+    input[type=text] {
+        width: 80%;
+        margin-left:10px;
+        margin-right:10px;
+    }
+
+    form {
+        display: flex;
+        width:100%
+    }
+
+    #results {
+        width: 100%;
+    }
+
+    a {
+      color: black !important;
+      text-decoration: none !important;
+    }
+
+</style>
+<body>
+   
+<div class="desktop-icon" onclick="launchwindow()">
+    <img src="../static/search.ico"><p>Vyhledávání</p>
+</div>
+
+<div class="window-container" id="main-search-window">    
+<div class="window" id="draggable-window">
+  <div class="title-bar" id="draggable-window-header"> 
+  
+    <div class="title-bar-text">Vyhledávání</div>
+    <div class="title-bar-controls">
+      <button aria-label="Minimize" onclick="minimizewindow()"></button>
+      <button aria-label="Maximize" onclick="maximizewindow()"></button>
+      <button aria-label="Close" onclick="closewindow()"></button>
+    </div>
+  </div>
+  <div class="window-body">
+      <div class="header">
+      <div class="header-item">Soubor</div>
+      <div class="header-item">Úpravy</div>
+      <div class="header-item">Zobrazit</div>
+      <div class="header-item">Oblíbené</div>
+      <div class="header-item">Nápověda</div> 
+      </div>
+      <div class="header">
+      <div class="header-item large" style="border-right: 1px solid #b4afa0"><img src="../static/folderback.ico"></div>
+      <a href="../home"><div class="header-item active"><img src="../static/search.ico"> Nový dotaz</div></a>
+      <div class="header-item large"><img src="../static/folder.ico"> Složky</div>
+      <div class="header-item large"><img src="../static/apps.ico"></div>
+      </div>
+      <div class="window-contents">
+          <div class="search-hint">
+              <div class="bubble">
+              <div>
+                  Vyhledat soubory, dokumenty, texty...
+              </div>
+              <div class="bubble-items">
+                      Vyhledávač umí hledat soubory na disku.
+              </div>
+              <div class="bubble-items">
+                      Do formuláře nahoře zadejte dotaz.
+              </div>
+              <div class="bubble-items">
+                      Kliknutím na "Nový dotaz" začnete znova.
+              </div>
+              <div class="bubble-items">
+                      Mezi vedlejší účinky patří psychická újma.
+              </div>
+              <div class="bubble-items" onclick=clippy.show()>
+                      V případě bolestí vyhledejte lékařskou pomoc.
+              </div>
+              
+          </div>
+          <img src="../static/IMG_0625.gif">
+          </div>
+          
+          <div class="search-iframe">
+
+              <div id="results">
+                    <ul class="tree-view">
+                          {% for item in list_of_results %}
+                          <li>
+                            {{ item["file_name"] }}  
+                          <ul>
+                            <li>{{ item["absolute_path"] }}</li>
+                            <li>{{ item["context_before"] }}<span style="font-weight:bold">{{ item["result"] }}</span>{{ item["context_after"] }}</li>
+                          </ul>
+                        </li>
+                        {% endfor %}
+                      </ul>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+</div>
+    
+    <div class="panel-start">
+        <div class=startbutton>
+            <img src="../static/start-normal.png" id="startimage" onmouseover="this.src='../static/start-onhover.png';" onmouseout="this.src='../static/start-normal.png';" onclick="this.src='start-onclick.png';">
+            </div>
+        <div class="panel-start item" id="panel-start-search" onclick="openwindow()"><img src="../static/search.ico" class="program-icon">Vyhledávání</div>
+         <div class="panel-start datetime"><p id="datetime"></p></div>
+        <!-- opravit font+centrování+formát na HH:MM+dynamicky refreshovat-->
+</div>
+
+
+<script>
+  var now = new Date();
+  var datetime = now.toLocaleString();
+
+  document.getElementById("datetime").innerHTML = datetime;
+</script>
+<!-- akorát že vůbec-->
+
+<script>
+function minimizewindow() {
+  var x = document.getElementById("main-search-window");
+    x.style.display = "none";
+}
+</script>
+<script>
+function openwindow() {
+  var x = document.getElementById("main-search-window");
+  if (x.style.display === "none") {
+    x.style.display = "flex";
+  } else {
+    x.style.display = "none";
+  }
+}
+</script>
+<script>
+function closewindow() {
+  var x = document.getElementById("main-search-window");
+    x.style.display = "none";
+  
+  var y = document.getElementById("panel-start-search");
+    y.style.display = "none";
+}
+</script>
+<script>
+function launchwindow() {
+  var x = document.getElementById("main-search-window");
+  if (x.style.display === "none") {
+    x.style.display = "flex";
+  }
+  
+  var y = document.getElementById("panel-start-search");
+  if (y.style.display === "none") {
+    y.style.display = "flex";
+  }
+}
+</script>
+
+<script>
+function maximizewindow() {
+  var x = document.getElementById("draggable-window");
+
+  if (x.classList.contains("maximized")) {
+    // Restore to original size
+    x.style.width = "";
+    x.style.height = "";
+    x.style.top = "";
+    x.style.left = "";
+    x.classList.remove("maximized");
+  } else {
+    // Maximize
+    x.style.width = "100%";
+    x.style.height = "100%";
+    x.style.top = "0";
+    x.style.left = "0";
+    x.classList.add("maximized");
+  }
+}
+</script>
+
+<script>
+    function doSomeStuff() {
+  var x = document.getElementById("progressbar");
+    x.style.display = "flex";
+  }
+</script>
+
+</body>
